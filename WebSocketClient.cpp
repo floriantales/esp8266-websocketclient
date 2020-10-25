@@ -1,4 +1,4 @@
-//#define DEBUG
+//#define DEBUGWS
 
 #include "WebSocketClient.h"
 #include <WiFiClientSecure.h>
@@ -10,7 +10,7 @@
 #define WS_MASK           0x80
 #define WS_SIZE16         126
 
-#ifdef DEBUG
+#ifdef DEBUGWS
 #define DEBUG_WS Serial.println
 #else
 #define DEBUG_WS(MSG)
@@ -32,18 +32,14 @@ void WebSocketClient::setAuthorizationHeader(String header) {
 }
 
 String WebSocketClient::generateKey() {
-	String key = "";
-	for (int i = 0; i < 23; ++i) {
-		int r = random(0, 3);
-		if (r == 0)
-			key += (char) random(48, 58);
-		else if (r == 1)
-			key += (char) random(65, 91);
-		else if (r == 2)
-			key += (char) random(97, 128);
-	}
-	return key;
+        String base64Base[] = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "+", "/"};
+        String key = "";
+        for (int i = 0; i < 22; ++i) {
+                key += base64Base[random(0, 64)];
+        }
+        return key;
 }
+
 void WebSocketClient::write(uint8_t data) {
     if (client->connected())
         client->write(data);
@@ -110,7 +106,7 @@ bool WebSocketClient::connect(String host, String path, int port) {
 			else if (key == "Sec-WebSocket-Accept")
 				hasAcceptedKey = true;
 
-			else if (key == "Upgrade" && value == "websocket")
+			else if (key == "Upgrade" && (value == "websocket" || value =="WebSocket"))
 				isWebsocket = true;
 		}
 
